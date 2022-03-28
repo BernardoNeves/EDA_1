@@ -32,7 +32,8 @@ void MainMenu()
 
             break;
         case 3:
-
+            PrintJobList(jobhead);
+            remove_job(&jobhead, find_job(jobhead, 0));
             break;
         case 4:
 

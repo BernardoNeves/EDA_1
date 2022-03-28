@@ -119,24 +119,21 @@ void PrintJobList(job *jobhead)
         tmp = tmp->next;
     }
 
-    int l;
-    printf("\nSelect Job: ");
-    l = GetInt(1, jobtmp->JobNumber);
-    jobtmp = find_job(jobhead, l);
-    PrintOperationList(jobtmp->OperationHeadPointer, jobhead, l);
+    jobtmp = find_job(jobhead, 0);
+    PrintOperationList(jobtmp->OperationHeadPointer, jobhead, jobtmp->JobNumber);
 }
 
-void PrintOperationList(operation *head, job *jobhead, int l)
+void PrintOperationList(operation *head, job *jobhead, int JobNumber)
 {
     operation *tmp = head;
     operation *operationtmp;
     job *jobtmp;
 
-    printf("\n\t\tJob: %d\n\n", l);
+    printf("\n\t\tJob: %d\n\n", JobNumber);
     while (tmp != NULL)
     {
-        jobtmp = find_job(jobhead, l);
-        operationtmp = find_operation(jobtmp->OperationHeadPointer, tmp->OperationNumber, l);
+        jobtmp = find_job(jobhead, JobNumber);
+        operationtmp = find_operation(jobtmp->OperationHeadPointer, tmp->OperationNumber, JobNumber);
         printf("Operation: %d\n\n", tmp->OperationNumber);
         PrintMachineList(operationtmp->MachineHeadPointer);
         tmp = tmp->next;
@@ -147,7 +144,6 @@ void PrintMachineList(machine *head)
 {
     machine *tmp = head;
     machine *tmp2 = head;
-    printf("\nNormal\n");
     while (tmp != NULL)
     {
         printf("ID: %d TIME: %d\n", tmp->MachineNumber, tmp->MachineTime);
@@ -155,12 +151,12 @@ void PrintMachineList(machine *head)
         tmp = tmp->next;
     }
 
-    printf("\nReversed\n");
-    while (tmp2 != NULL)
-    {
-        printf("ID: %d TIME: %d\n", tmp2->MachineNumber, tmp2->MachineTime);
-        tmp2 = tmp2->prev;
-    }
+    // printf("\nReversed\n");
+    // while (tmp2 != NULL)
+    // {
+    //     printf("ID: %d TIME: %d\n", tmp2->MachineNumber, tmp2->MachineTime);
+    //     tmp2 = tmp2->prev;
+    // }
     printf("\n");
 }
 
@@ -302,12 +298,26 @@ machine *insert_machine_at_end(machine **machinehead, machine *machine_to_insert
 
 //
 
-machine *find_machine(machine *head, int MachineNumber)
+job *find_job(job *head, int JobNumber)
 {
-    machine *tmp = head;
+    job *tmp = head;
+    job *jobtmp;
+
     while (tmp != NULL)
     {
-        if (tmp->MachineNumber == MachineNumber)
+        jobtmp = tmp;
+        tmp = tmp->next;
+    }
+    if (JobNumber == 0)
+    {
+        printf("\nSelect Job: ");
+        JobNumber = GetInt(1, jobtmp->JobNumber);
+    }
+
+    tmp = head;
+    while (tmp != NULL)
+    {
+        if (tmp->JobNumber == JobNumber)
             return tmp;
         tmp = tmp->next;
     }
@@ -328,12 +338,12 @@ operation *find_operation(operation *head, int OperationNumber, int JobNumber)
     return NULL;
 }
 
-job *find_job(job *head, int JobNumber)
+machine *find_machine(machine *head, int MachineNumber)
 {
-    job *tmp = head;
+    machine *tmp = head;
     while (tmp != NULL)
     {
-        if (tmp->JobNumber == JobNumber)
+        if (tmp->MachineNumber == MachineNumber)
             return tmp;
         tmp = tmp->next;
     }
@@ -342,11 +352,17 @@ job *find_job(job *head, int JobNumber)
 
 //
 
-void *remove_job(job **head, int JobNumber)
+operation *alter_operation(operation *operation_to_alter)
+{
+    printf("Old Job Number: %d\tNew Job Number: ", operation_to_alter->OperationNumber);
+    scanf(" %d", &operation_to_alter->OperationNumber);
+}
+
+void *remove_job(job **head, job *job_to_remove)
 {
     job *tmp;
 
-    if ((*head)->JobNumber == JobNumber)
+    if ((*head)->JobNumber == job_to_remove->JobNumber)
     {
         tmp = *head;
         *head = (*head)->next;
@@ -357,7 +373,7 @@ void *remove_job(job **head, int JobNumber)
         job *current = *head;
         while (current->next != NULL)
         {
-            if (current->next->JobNumber == JobNumber)
+            if (current->next->JobNumber == job_to_remove->JobNumber)
             {
                 tmp = current->next;
                 current->next = current->next->next;
