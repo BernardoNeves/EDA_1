@@ -1,383 +1,575 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "functions.h"
 #include "lists.h"
 
-job *read(FILE *JobsFile, job *jobhead)
+int GetInt(int min, int max)
 {
-    machine *head = NULL;
-    machine *tmp;
-    operation *operationhead = NULL;
-    operation *operationtmp;
-    job *jobtmp;
-    int i, j = 0, k = 0, l, m;
-    char a = '>';
+    int choiceInt = -1;
+    char choiceChar;
+    printf("\n\t> ");
+    scanf(" %d", &choiceInt);
+    scanf("%c", &choiceChar);
+    while (choiceInt > max || choiceInt < min)
+    {
+        printf("\n\t//Invalid Option//\n\n");
+        printf("\n> ");
+        scanf(" %d", &choiceInt);
+        scanf("%c", &choiceChar);
+    }
+    system("cls");
+    return choiceInt;
+}
 
-    JobsFile = fopen("Jobs.txt", "r");
-    if (JobsFile == NULL)
+job *read(FILE *jobFile, job *jobHead)
+{
+    job *jobTmp;
+    machine *machineHead = NULL;
+    machine *machineTmp;
+    operation *operationHead = NULL;
+    operation *operationTmp;
+    int jobNumber = 0, machineNumber, operationNumber = 0;
+    char buffer = '>';
+
+    jobFile = fopen("Jobs.txt", "r");
+    if (jobFile == NULL)
     {
         printf("Failed to open Jobs.txt");
         return 0;
     }
-    fscanf(JobsFile, "%*c");
-    while (!feof(JobsFile))
+    fscanf(jobFile, "%*c");
+    while (!feof(jobFile))
     {
-        k++;
-        if (a == '>')
+        jobNumber++;
+        if (buffer == '>')
         {
-            while (a == '>')
+            while (buffer == '>')
             {
-                j++;
-                while (fscanf(JobsFile, " %d", &i) == 1)
+                operationNumber++;
+                while (fscanf(jobFile, " %d", &machineNumber) == 1)
                 {
-                    tmp = create_new_machine(i);
-                    head = insert_machine_at_end(&head, tmp);
+                    machineTmp = create_new_machine(machineNumber);
+                    machineHead = insert_machine_at_end(&machineHead, machineTmp);
                 }
-                operationtmp = create_new_operation(j, k, &head);
-                operationhead = insert_operation_at_end(&operationhead, operationtmp);
-                fscanf(JobsFile, "%*c %c", &a);
-                tmp = head;
-                while (fscanf(JobsFile, " %d", &i) == 1)
+                operationTmp = create_new_operation(operationNumber, jobNumber, &machineHead);
+                operationHead = insert_operation_at_end(&operationHead, operationTmp);
+                fscanf(jobFile, "%*c %c", &buffer);
+                machineTmp = machineHead;
+                while (fscanf(jobFile, " %d", &machineNumber) == 1)
                 {
-                    tmp->MachineTime = i;
-                    tmp = tmp->next;
+                    machineTmp->machineTime = machineNumber;
+                    machineTmp = machineTmp->next;
                 }
-                fscanf(JobsFile, "%*c %c", &a);
-                head = NULL;
+                fscanf(jobFile, "%*c %c", &buffer);
+                machineHead = NULL;
             }
         }
-        fscanf(JobsFile, "%*c %*c %c", &a);
-        j = 0;
+        fscanf(jobFile, "%*c %c", &buffer);
+        operationNumber = 0;
 
-        jobtmp = create_new_job(k, &operationhead);
-        jobhead = insert_job_at_end(&jobhead, jobtmp);
-        operationhead = NULL;
+        jobTmp = create_new_job(jobNumber, &operationHead);
+        jobHead = insert_job_at_end(&jobHead, jobTmp);
+        operationHead = NULL;
     }
-    fclose(JobsFile);
-    return jobhead;
+    fclose(jobFile);
+    return jobHead;
 }
 
-void write(FILE *JobsFile, job *jobhead)
+void write(FILE *jobFile, job *jobHead)
 {
-    job *tmp = jobhead;
-    machine *machinetmp;
-    JobsFile = fopen("Jobs.txt", "w");
-    while (tmp != NULL)
+    job *jobTmp = jobHead;
+    machine *machineTmp;
+    jobFile = fopen("Jobs.txt", "w");
+    while (jobTmp != NULL)
     {
-        while (tmp->OperationHeadPointer != NULL)
+        while (jobTmp->operationHeadPointer != NULL)
         {
-            fprintf(JobsFile, ">");
-            while (tmp->OperationHeadPointer->MachineHeadPointer != NULL)
+            fprintf(jobFile, ">");
+            while (jobTmp->operationHeadPointer->machineHeadPointer != NULL)
             {
-                fprintf(JobsFile, "%d", tmp->OperationHeadPointer->MachineHeadPointer->MachineNumber);
-                if (tmp->OperationHeadPointer->MachineHeadPointer->next != NULL)
+                fprintf(jobFile, "%d", jobTmp->operationHeadPointer->machineHeadPointer->machineNumber);
+                if (jobTmp->operationHeadPointer->machineHeadPointer->next != NULL)
                 {
-                    fprintf(JobsFile, " ");
+                    fprintf(jobFile, " ");
                 }
-                machinetmp = tmp->OperationHeadPointer->MachineHeadPointer;
-                tmp->OperationHeadPointer->MachineHeadPointer = tmp->OperationHeadPointer->MachineHeadPointer->next;
+                machineTmp = jobTmp->operationHeadPointer->machineHeadPointer;
+                jobTmp->operationHeadPointer->machineHeadPointer = jobTmp->operationHeadPointer->machineHeadPointer->next;
             }
-            fprintf(JobsFile, ",\n");
-            while (machinetmp->prev != NULL)
+            fprintf(jobFile, ",\n");
+            while (machineTmp->prev != NULL)
             {
-                machinetmp = machinetmp->prev;
+                machineTmp = machineTmp->prev;
             }
-            fprintf(JobsFile, ">");
-            while (machinetmp != NULL)
+            fprintf(jobFile, ">");
+            while (machineTmp != NULL)
             {
-                fprintf(JobsFile, "%d", machinetmp->MachineTime);
-                if (machinetmp->next != NULL)
+                fprintf(jobFile, "%d", machineTmp->machineTime);
+                if (machineTmp->next != NULL)
                 {
-                    fprintf(JobsFile, " ");
+                    fprintf(jobFile, " ");
                 }
-                machinetmp = machinetmp->next;
+                machineTmp = machineTmp->next;
             }
-            fprintf(JobsFile, ",\n");
-            tmp->OperationHeadPointer = tmp->OperationHeadPointer->next;
+            fprintf(jobFile, ",\n");
+            jobTmp->operationHeadPointer = jobTmp->operationHeadPointer->next;
         }
-        fprintf(JobsFile, "-%d,", tmp->JobNumber);
-        if (tmp->next != NULL)
+        fprintf(jobFile, "-,");
+        if (jobTmp->next != NULL)
         {
-            fprintf(JobsFile, "\n");
+            fprintf(jobFile, "\n");
         }
-        tmp = tmp->next;
+        jobTmp = jobTmp->next;
     }
-    fclose(JobsFile);
+    fclose(jobFile);
 }
 
-//
-
-void PrintJobList(job *jobhead)
+void PrintJobList(job *jobHead)
 {
-    job *tmp = jobhead;
-    job *jobtmp;
+    job *jobTmp = jobHead;
     printf("Jobs:\n");
-    while (tmp != NULL)
+    while (jobTmp != NULL)
     {
-        printf(">%d ", tmp->JobNumber);
-        jobtmp = tmp;
-        tmp = tmp->next;
+        printf("%d; ", jobTmp->jobNumber);
+        jobTmp = jobTmp->next;
     }
-
-    jobtmp = find_job(jobhead, 0);
-    PrintOperationList(jobtmp->OperationHeadPointer, jobhead, jobtmp->JobNumber);
+    PrintOperationList(select_job(jobHead)->operationHeadPointer);
 }
 
-void PrintOperationList(operation *head, job *jobhead, int JobNumber)
+void PrintOperationList(operation *operationHead)
 {
-    operation *tmp = head;
-    operation *operationtmp;
-    job *jobtmp;
+    operation *operationTmp = operationHead;
 
-    printf("\n\t\tJob: %d\n\n", JobNumber);
-    while (tmp != NULL)
+    while (operationTmp != NULL)
     {
-        jobtmp = find_job(jobhead, JobNumber);
-        operationtmp = find_operation(jobtmp->OperationHeadPointer, tmp->OperationNumber, JobNumber);
-        printf("Operation: %d\n\n", tmp->OperationNumber);
-        PrintMachineList(operationtmp->MachineHeadPointer);
-        tmp = tmp->next;
+        printf("\nOperation: %d\n\n", operationTmp->operationNumber);
+        PrintMachineList(operationTmp->machineHeadPointer);
+        operationTmp = operationTmp->next;
     }
 }
 
-void PrintMachineList(machine *head)
+void PrintMachineList(machine *machineHead)
 {
-    machine *tmp = head;
-    machine *tmp2 = head;
-    while (tmp != NULL)
-    {
-        printf("ID: %d TIME: %d\n", tmp->MachineNumber, tmp->MachineTime);
-        tmp2 = tmp;
-        tmp = tmp->next;
-    }
+    machine *machineTmp = machineHead;
 
-    // printf("\nReversed\n");
-    // while (tmp2 != NULL)
+    while (machineTmp != NULL)
+    {
+        printf("Machine: %d Time: %d\n", machineTmp->machineNumber, machineTmp->machineTime);
+        machineTmp = machineTmp->next;
+    }
+}
+
+void UserCreateOperation(job *jobHead)
+{
+    job *jobTmp = jobHead;
+    operation *operationTmp;
+    operation *operationHead;
+    machine *machineTmp;
+    machine *machineHeadTmp;
+    machine *machineHead = NULL;
+    int machineNumber = 1;
+    int operationNumber;
+    printf("Jobs:\n");
+    while (jobTmp != NULL)
+    {
+        printf("%d; ", jobTmp->jobNumber);
+        jobTmp = jobTmp->next;
+    }
+    jobTmp = select_job(jobHead);
+
+    printf("\nOperation Order Number: ");
+    scanf(" %d", &operationNumber);
+
+    while (machineNumber != 0)
+    {
+        printf("\nMachine Number: ");
+        scanf(" %d", &machineNumber);
+        machineTmp = create_new_machine(machineNumber);
+        machineHead = insert_machine_at_end(&machineHead, machineTmp);
+
+        printf("\nMachine %d Time: ", machineTmp->machineNumber);
+        scanf(" %d", &machineNumber);
+        machineTmp->machineTime = machineNumber;
+        machineTmp = machineHead;
+
+        printf("Enter 0 to stop adding machines: ");
+        scanf(" %d", &machineNumber);
+    }
+    while (jobTmp->operationHeadPointer->next != NULL)
+    {
+        jobTmp->operationHeadPointer = jobTmp->operationHeadPointer->next;
+    }
+    operationTmp = create_new_operation(jobTmp->operationHeadPointer->operationNumber + 1, jobTmp->jobNumber, &machineHead);
+    while (jobTmp->operationHeadPointer->prev != NULL)
+    {
+        jobTmp->operationHeadPointer = jobTmp->operationHeadPointer->prev;
+    }
+    operationHead = insert_operation_at_end(&jobTmp->operationHeadPointer, operationTmp);
+    operationTmp = find_operation(jobTmp->operationHeadPointer, operationNumber, jobTmp->jobNumber);
+    while (operationTmp != NULL)
+    {
+        machineHeadTmp = operationTmp->machineHeadPointer;
+        operationTmp->machineHeadPointer = machineTmp;
+        machineTmp = machineHeadTmp;
+        operationTmp = operationTmp->next;
+    }
+}
+
+void UserRemoveOperation(job *jobHead)
+{
+    job *jobTmp = jobHead;
+    operation *operationTmp;
+    machine *machineTmp;
+    machine *machineHeadTmp;
+    machine *machineHead = NULL;
+    int machineNumber = 1;
+    int operationNumber;
+    printf("Jobs:\n");
+    while (jobTmp != NULL)
+    {
+        printf("%d; ", jobTmp->jobNumber);
+        jobTmp = jobTmp->next;
+    }
+    jobTmp = select_job(jobHead);
+    operationTmp = jobTmp->operationHeadPointer;
+
+    printf("\nOperation Number: ");
+    scanf(" %d", &operationNumber);
+
+    // while (jobTmp->operationHeadPointer->prev != NULL)
     // {
-    //     printf("ID: %d TIME: %d\n", tmp2->MachineNumber, tmp2->MachineTime);
-    //     tmp2 = tmp2->prev;
+    //     jobTmp->operationHeadPointer = jobTmp->operationHeadPointer->prev;
     // }
-    printf("\n");
+    while (operationTmp->next != NULL)
+    {
+        operationTmp = operationTmp->next;
+    }
+    while (operationTmp->prev != NULL)
+    {
+        machineHeadTmp = operationTmp->machineHeadPointer;
+        operationTmp->machineHeadPointer = machineTmp;
+        machineTmp = machineHeadTmp;
+        operationTmp = operationTmp->prev;
+        if (operationTmp->next->operationNumber == operationNumber)
+            break;
+    }
+
+    while (operationTmp->next != NULL)
+    {
+        operationTmp = operationTmp->next;
+    }
+    operationTmp->prev->next = NULL;
+    free(operationTmp);
 }
 
-//
+void UserAlterOperation(job *jobHead)
+{
+    job *jobTmp = jobHead;
+    operation *operationTmp;
+    operation *operationTmp2;
+    operation *operationTmp3;
+    machine *machineTmp;
+    machine *machineHeadTmp;
+    machine *machineHead = NULL;
+    int machineNumber = 1;
+    int operationNumber;
 
-job *create_new_job(int JobNumber, operation **head)
+    printf("Jobs:\n");
+    while (jobTmp != NULL)
+    {
+        printf("%d; ", jobTmp->jobNumber);
+        jobTmp = jobTmp->next;
+    }
+    jobTmp = select_job(jobHead);
+
+    operationTmp = select_operation(jobTmp->operationHeadPointer);
+    int choice;
+
+    do
+    {
+        printf("\t--- Alter Operation ---\n"
+               "\t Enter 1 - Add Machine \n"
+               "\t Enter 2 - Remove Machine \n"
+               "\t Enter 3 - Swap Operation Order \n"
+               "\n\t Enter 0 - Quit\n");
+
+        choice = GetInt(0, 5);
+        switch (choice)
+        {
+        case 1:
+            while (machineNumber != 0)
+            {
+                machineHead = operationTmp->machineHeadPointer;
+                printf("\nMachine Number: ");
+                scanf(" %d", &machineNumber);
+                machineTmp = create_new_machine(machineNumber);
+                machineHead = insert_machine_at_end(&machineHead, machineTmp);
+
+                printf("\nMachine %d Time: ", machineTmp->machineNumber);
+                scanf(" %d", &machineNumber);
+                machineTmp->machineTime = machineNumber;
+                machineTmp = machineHead;
+
+                printf("Enter 0 to stop adding machines: ");
+                scanf(" %d", &machineNumber);
+            }
+            break;
+        case 2:
+            machineTmp = select_machine(jobTmp->operationHeadPointer->machineHeadPointer);
+            remove_machine(jobTmp->operationHeadPointer->machineHeadPointer, machineTmp->machineNumber);
+            break;
+        case 3:
+            printf("\n Swap operation %d with: ", operationTmp->operationNumber);
+            scanf("%d", &operationNumber);
+            operationTmp2 = find_operation(jobTmp->operationHeadPointer, operationNumber, jobTmp->jobNumber);
+            operationTmp3->next = operationTmp->next;
+            operationTmp3->prev = operationTmp->prev;
+            operationTmp->next = operationTmp2->next;
+            operationTmp->prev = operationTmp2->prev;
+            operationTmp2->next = operationTmp3->next;
+            operationTmp2->prev = operationTmp3->prev;
+            break;
+        case 0:
+            break;
+        default:
+            printf("\n\t//Invalid Option//\n\n");
+            break;
+        }
+    } while (choice != 0);
+}
+
+job *create_new_job(int jobNumber, operation **operationHead)
 {
     job *result = malloc(sizeof(job));
-    result->JobNumber = JobNumber;
-    result->OperationHeadPointer = *head;
+    result->jobNumber = jobNumber;
+    result->operationHeadPointer = *operationHead;
     result->next = NULL;
     return result;
 }
 
-operation *create_new_operation(int OperationNumber, int JobNumber, machine **head)
+operation *create_new_operation(int operationNumber, int jobNumber, machine **machineHead)
 {
     operation *result = malloc(sizeof(operation));
-    result->OperationNumber = OperationNumber;
-    result->JobNumber = JobNumber;
-    result->MachineHeadPointer = *head;
-    result->next = NULL;
-    return result;
-}
-
-machine *create_new_machine(int MachineNumber)
-{
-    machine *result = malloc(sizeof(machine));
-    result->MachineNumber = MachineNumber;
+    result->operationNumber = operationNumber;
+    result->jobNumber = jobNumber;
+    result->machineHeadPointer = *machineHead;
     result->next = NULL;
     result->prev = NULL;
     return result;
 }
 
-//
-
-job *insert_at_jobhead(job **jobhead, job *job_to_insert)
+machine *create_new_machine(int machineNumber)
 {
-    job_to_insert->next = *jobhead;
-    *jobhead = job_to_insert;
-    return job_to_insert;
+    machine *result = malloc(sizeof(machine));
+    result->machineNumber = machineNumber;
+    result->next = NULL;
+    result->prev = NULL;
+    return result;
 }
 
-operation *insert_at_operationhead(operation **operationhead, operation *operation_to_insert)
+job *insert_at_jobhead(job **jobHead, job *jobToInsert)
 {
-    operation_to_insert->next = *operationhead;
-    *operationhead = operation_to_insert;
-    return operation_to_insert;
+    jobToInsert->next = *jobHead;
+    *jobHead = jobToInsert;
+    return jobToInsert;
 }
 
-machine *insert_at_machinehead(machine **machinehead, machine *machine_to_insert)
+operation *insert_at_operationhead(operation **operationHead, operation *operationToInsert)
 {
-    machine_to_insert->next = *machinehead;
-    *machinehead = machine_to_insert;
-    return machine_to_insert;
+    operationToInsert->next = *operationHead;
+    *operationHead = operationToInsert;
+    return operationToInsert;
 }
 
-//
-
-void insert_after_job(job *job_to_insert_after, job *newjob)
+machine *insert_at_machineHead(machine **machineHead, machine *machineToInsert)
 {
-    newjob->next = job_to_insert_after->next;
-    job_to_insert_after->next = newjob;
+    machineToInsert->next = *machineHead;
+    *machineHead = machineToInsert;
+    return machineToInsert;
 }
 
-void insert_after_operation(operation *operation_to_insert_after, operation *newoperation)
+void insert_after_job(job *jobToInsertAfter, job *jobToInsert)
 {
-    newoperation->next = operation_to_insert_after->next;
-    operation_to_insert_after->next = newoperation;
+    jobToInsert->next = jobToInsertAfter->next;
+    jobToInsertAfter->next = jobToInsert;
 }
 
-void insert_after_machine(machine *machine_to_insert_after, machine *newmachine)
+void insert_after_operation(operation *operationToInsertAfter, operation *operationToInsert)
 {
-    newmachine->next = machine_to_insert_after->next;
-    machine_to_insert_after->next = newmachine;
+    operationToInsert->next = operationToInsertAfter->next;
+    operationToInsertAfter->next = operationToInsert;
 }
 
-//
-
-job *insert_job_at_end(job **jobhead, job *job_to_insert)
+void insert_after_machine(machine *machineToInsertAfter, machine *machineToInsert)
 {
-    job_to_insert->next = NULL;
+    machineToInsert->next = machineToInsertAfter->next;
+    machineToInsertAfter->next = machineToInsert;
+}
 
-    if (*jobhead == NULL)
-        *jobhead = job_to_insert;
+job *insert_job_at_end(job **jobHead, job *jobToInsert)
+{
+    jobToInsert->next = NULL;
+
+    if (*jobHead == NULL)
+        *jobHead = jobToInsert;
     else
     {
-        job *last = *jobhead;
+        job *last = *jobHead;
 
         while (last->next != NULL)
         {
             last = last->next;
         }
 
-        last->next = job_to_insert;
+        last->next = jobToInsert;
     }
-    return *jobhead;
+    return *jobHead;
 }
 
-operation *insert_operation_at_end(operation **operationhead, operation *operation_to_insert)
+operation *insert_operation_at_end(operation **operationHead, operation *operationToInsert)
 {
-    operation_to_insert->next = NULL;
+    operationToInsert->next = NULL;
 
-    if (*operationhead == NULL)
-        *operationhead = operation_to_insert;
+    if (*operationHead == NULL)
+        *operationHead = operationToInsert;
     else
     {
-        operation *last = *operationhead;
-
-        while (last->next != NULL)
-        {
-            last = last->next;
-        }
-
-        last->next = operation_to_insert;
-    }
-    return *operationhead;
-}
-
-machine *insert_machine_at_end(machine **machinehead, machine *machine_to_insert)
-{
-    machine_to_insert->next = NULL;
-
-    if (*machinehead == NULL)
-        *machinehead = machine_to_insert;
-    else
-    {
-        machine *last = *machinehead;
+        operation *last = *operationHead;
 
         while (last->next != NULL)
         {
             last->next->prev = last;
             last = last->next;
         }
-        last->next = machine_to_insert;
-        machine_to_insert->prev = last;
+
+        last->next = operationToInsert;
+        operationToInsert->prev = last;
     }
-    return *machinehead;
+    return *operationHead;
 }
 
-//
-
-job *find_job(job *head, int JobNumber)
+machine *insert_machine_at_end(machine **machineHead, machine *machineToInsert)
 {
-    job *tmp = head;
-    job *jobtmp;
+    machineToInsert->next = NULL;
 
-    while (tmp != NULL)
+    if (*machineHead == NULL)
+        *machineHead = machineToInsert;
+    else
     {
-        jobtmp = tmp;
-        tmp = tmp->next;
-    }
-    if (JobNumber == 0)
-    {
-        printf("\nSelect Job: ");
-        JobNumber = GetInt(1, jobtmp->JobNumber);
-    }
+        machine *last = *machineHead;
 
-    tmp = head;
-    while (tmp != NULL)
-    {
-        if (tmp->JobNumber == JobNumber)
-            return tmp;
-        tmp = tmp->next;
-    }
-    return NULL;
-}
-
-operation *find_operation(operation *head, int OperationNumber, int JobNumber)
-{
-    operation *tmp = head;
-    while (tmp != NULL)
-    {
-        if (tmp->OperationNumber == OperationNumber && tmp->JobNumber == JobNumber)
+        while (last->next != NULL)
         {
-            return tmp;
+            last->next->prev = last;
+            last = last->next;
         }
-        tmp = tmp->next;
+        last->next = machineToInsert;
+        machineToInsert->prev = last;
+    }
+    return *machineHead;
+}
+
+job *select_job(job *jobHead)
+{
+    job *jobHead2 = jobHead;
+    int jobNumber;
+
+    printf("\nSelect Job: ");
+    while (jobHead->next != NULL)
+    {
+        jobHead = jobHead->next;
+    }
+    jobNumber = GetInt(1, jobHead->jobNumber);
+    jobHead = jobHead2;
+    while (jobHead != NULL)
+    {
+        if (jobHead->jobNumber == jobNumber)
+            return jobHead;
+        jobHead = jobHead->next;
     }
     return NULL;
 }
 
-machine *find_machine(machine *head, int MachineNumber)
+operation *find_operation(operation *operationHead, int operationNumber, int jobNumber)
 {
-    machine *tmp = head;
-    while (tmp != NULL)
+    operation *operationTmp = operationHead;
+    while (operationTmp != NULL)
     {
-        if (tmp->MachineNumber == MachineNumber)
-            return tmp;
-        tmp = tmp->next;
+        if (operationTmp->operationNumber == operationNumber && operationTmp->jobNumber == jobNumber)
+        {
+            return operationTmp;
+        }
+        operationTmp = operationTmp->next;
     }
     return NULL;
 }
 
-//
-
-operation *alter_operation(operation *operation_to_alter)
+operation *select_operation(operation *operationHead)
 {
-    printf("Old Job Number: %d\tNew Job Number: ", operation_to_alter->OperationNumber);
-    scanf(" %d", &operation_to_alter->OperationNumber);
+    operation *operationHead2 = operationHead;
+    int operationNumber;
+
+    printf("\nSelect operation: ");
+    while (operationHead->next != NULL)
+    {
+        operationHead = operationHead->next;
+    }
+    operationNumber = GetInt(1, operationHead->operationNumber);
+    operationHead = operationHead2;
+    while (operationHead != NULL)
+    {
+        if (operationHead->operationNumber == operationNumber)
+            return operationHead;
+        operationHead = operationHead->next;
+    }
+    return NULL;
 }
 
-void *remove_job(job **head, job *job_to_remove)
+machine *select_machine(machine *machineHead)
 {
-    job *tmp;
+    machine *machineHead2 = machineHead;
+    int machineNumber;
 
-    if ((*head)->JobNumber == job_to_remove->JobNumber)
+    printf("\nSelect machine: ");
+    while (machineHead->next != NULL)
     {
-        tmp = *head;
-        *head = (*head)->next;
-        free(tmp);
+        machineHead = machineHead->next;
+    }
+    machineNumber = GetInt(1, 999);
+    machineHead = machineHead2;
+    while (machineHead != NULL)
+    {
+        if (machineHead->machineNumber == machineNumber)
+            return machineHead;
+        machineHead = machineHead->next;
+    }
+    return NULL;
+}
+
+operation *alter_operation(operation *operationToAlter)
+{
+    printf("Old Job Number: %d\tNew Job Number: ", operationToAlter->operationNumber);
+    scanf(" %d", &operationToAlter->operationNumber);
+}
+
+void *remove_job(job **jobHead, job *jobToRemove)
+{
+    job *jobTmp;
+
+    if ((*jobHead)->jobNumber == jobToRemove->jobNumber)
+    {
+        jobTmp = *jobHead;
+        *jobHead = (*jobHead)->next;
+        free(jobTmp);
     }
     else
     {
-        job *current = *head;
+        job *current = *jobHead;
         while (current->next != NULL)
         {
-            if (current->next->JobNumber == job_to_remove->JobNumber)
+            if (current->next->jobNumber == jobToRemove->jobNumber)
             {
-                tmp = current->next;
+                jobTmp = current->next;
                 current->next = current->next->next;
-                free(tmp);
+                free(jobTmp);
                 break;
             }
             else
@@ -388,26 +580,26 @@ void *remove_job(job **head, job *job_to_remove)
     }
 }
 
-void *remove_operation(operation **head, int OperationNumber)
+void *remove_operation(operation **operationHead, int operationNumber)
 {
-    operation *tmp;
+    operation *operationTmp;
 
-    if ((*head)->OperationNumber == OperationNumber)
+    if ((*operationHead)->operationNumber == operationNumber)
     {
-        tmp = *head;
-        *head = (*head)->next;
-        free(tmp);
+        operationTmp = *operationHead;
+        *operationHead = (*operationHead)->next;
+        free(operationTmp);
     }
     else
     {
-        operation *current = *head;
+        operation *current = *operationHead;
         while (current->next != NULL)
         {
-            if (current->next->OperationNumber == OperationNumber)
+            if (current->next->operationNumber == operationNumber)
             {
-                tmp = current->next;
+                operationTmp = current->next;
                 current->next = current->next->next;
-                free(tmp);
+                free(operationTmp);
                 break;
             }
             else
@@ -418,26 +610,26 @@ void *remove_operation(operation **head, int OperationNumber)
     }
 }
 
-void *remove_machine(machine **head, int MachineNumber)
+void *remove_machine(machine **machineHead, int machineNumber)
 {
-    machine *tmp;
+    machine *machineTmp;
 
-    if ((*head)->MachineNumber == MachineNumber)
+    if ((*machineHead)->machineNumber == machineNumber)
     {
-        tmp = *head;
-        *head = (*head)->next;
-        free(tmp);
+        machineTmp = *machineHead;
+        *machineHead = (*machineHead)->next;
+        free(machineTmp);
     }
     else
     {
-        machine *current = *head;
+        machine *current = *machineHead;
         while (current->next != NULL)
         {
-            if (current->next->MachineNumber == MachineNumber)
+            if (current->next->machineNumber == machineNumber)
             {
-                tmp = current->next;
+                machineTmp = current->next;
                 current->next = current->next->next;
-                free(tmp);
+                free(machineTmp);
                 break;
             }
             else

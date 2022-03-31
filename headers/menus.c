@@ -2,44 +2,40 @@
 #include <stdlib.h>
 #include <conio.h>
 #include "menus.h"
-#include "functions.h"
 #include "lists.h"
 
 void MainMenu()
 {
-
-    FILE *JobsFile;
-    job *jobhead = NULL;
-    jobhead = read(JobsFile, jobhead);
-    int ChoiceInt;
+    FILE *jobFile;
+    job *jobHead = NULL;
+    jobHead = read(jobFile, jobHead);
+    int choice;
 
     do
     {
         printf("\t--- MAIN MENU ---\n"
                "\t Enter 1 - List \n"
-               "\t Enter 2 - Add \n"
-               "\t Enter 3 - Remove \n"
-               "\t Enter 4 - Change \n"
+               "\t Enter 2 - Add Operation\n"
+               "\t Enter 3 - Remove Operation\n"
+               "\t Enter 4 - Alter Operation\n"
                "\n\t Enter 0 - Quit\n");
 
-        ChoiceInt = GetInt(0, 5);
-        switch (ChoiceInt)
+        choice = GetInt(0, 5);
+        switch (choice)
         {
         case 1:
-            PrintJobList(jobhead);
+            PrintJobList(jobHead);
             break;
         case 2:
-
+            UserCreateOperation(jobHead);
             break;
         case 3:
-            PrintJobList(jobhead);
-            remove_job(&jobhead, find_job(jobhead, 0));
+            UserRemoveOperation(jobHead);
+            // PrintJobList(jobHead);
+            // remove_job(&jobHead, select_job(jobHead));
             break;
         case 4:
-
-            break;
-        case 5:
-
+            UserAlterOperation(jobHead);
             break;
         case 0:
             break;
@@ -48,13 +44,14 @@ void MainMenu()
             MainMenu();
             break;
         }
-        if (ChoiceInt != 0)
+        if (choice != 0)
         {
             printf("\n\tPress any key to go back");
             getch();
             system("cls");
         }
 
-    } while (ChoiceInt != 0);
-    write(JobsFile, jobhead);
+    } while (choice != 0);
+    write(jobFile, jobHead);
+    _Exit(0);
 }
