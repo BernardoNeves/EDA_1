@@ -1,5 +1,5 @@
 # EDA_1
  
- Programação Imperativa
+Estruturas de Dados Avançadas
 
 Bernardo Neves - 23494;
