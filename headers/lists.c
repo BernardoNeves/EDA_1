@@ -1,3 +1,10 @@
+/**
+ * Author: Bernardo Neves
+ * Email: a23494@alunos.ipca.pt
+ * Date: 01/04/2022
+ * Description: List managing functions
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "lists.h"
@@ -19,7 +26,13 @@ int GetInt(int min, int max)
     system("cls");
     return choiceInt;
 }
-
+/**
+ * @brief 
+ * 
+ * @param jobFile 
+ * @param jobHead 
+ * @return job* 
+ */
 job *read(FILE *jobFile, job *jobHead)
 {
     job *jobTmp;
@@ -73,7 +86,12 @@ job *read(FILE *jobFile, job *jobHead)
     fclose(jobFile);
     return jobHead;
 }
-
+/**
+ * @brief
+ *
+ * @param jobFile
+ * @param jobHead
+ */
 void write(FILE *jobFile, job *jobHead)
 {
     job *jobTmp = jobHead;
@@ -121,7 +139,89 @@ void write(FILE *jobFile, job *jobHead)
     }
     fclose(jobFile);
 }
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
+void timeMin(job *jobHead)
+{
+    int machineNumber, minTime = 100, totalTime = 0;
+    while (jobHead->operationHeadPointer != NULL)
+    {
+        while (jobHead->operationHeadPointer->machineHeadPointer != NULL)
+        {
+            if (minTime > jobHead->operationHeadPointer->machineHeadPointer->machineTime)
+            {
+                minTime = jobHead->operationHeadPointer->machineHeadPointer->machineTime;
+                machineNumber = jobHead->operationHeadPointer->machineHeadPointer->machineNumber;
+            }
+            jobHead->operationHeadPointer->machineHeadPointer = jobHead->operationHeadPointer->machineHeadPointer->next;
+        }
+        printf("Minimum Time for Operation %d: Machine: %d Time: %d\n", jobHead->operationHeadPointer->operationNumber, machineNumber, minTime);
+        totalTime += minTime;
+        minTime = 100;
+        jobHead->operationHeadPointer = jobHead->operationHeadPointer->next;
+    }
+    printf("\nMinimum Time for Job %d: %d\n", jobHead->jobNumber, totalTime);
+}
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
+void timeMax(job *jobHead)
+{
+    int machineNumber, maxTime = 0, totalTime = 0;
+    while (jobHead->operationHeadPointer != NULL)
+    {
+        while (jobHead->operationHeadPointer->machineHeadPointer != NULL)
+        {
+            if (maxTime < jobHead->operationHeadPointer->machineHeadPointer->machineTime)
+            {
+                maxTime = jobHead->operationHeadPointer->machineHeadPointer->machineTime;
+                machineNumber = jobHead->operationHeadPointer->machineHeadPointer->machineNumber;
+            }
+            jobHead->operationHeadPointer->machineHeadPointer = jobHead->operationHeadPointer->machineHeadPointer->next;
+        }
+        printf("Maximum Time for Operation %d: Machine: %d Time: %d\n", jobHead->operationHeadPointer->operationNumber, machineNumber, maxTime);
+        totalTime += maxTime;
+        maxTime = 0;
+        jobHead->operationHeadPointer = jobHead->operationHeadPointer->next;
+    }
+    printf("\nMaximum Time for Job %d: %d\n", jobHead->jobNumber, totalTime);
+}
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
+void timeAverage(job *jobHead)
+{
+    int machineCounter;
+    float totalTime;
+    while (jobHead->operationHeadPointer != NULL)
+    {
+        machineCounter = 0;
+        totalTime = 0;
+        while (jobHead->operationHeadPointer->machineHeadPointer != NULL)
+        {
 
+            totalTime += jobHead->operationHeadPointer->machineHeadPointer->machineTime;
+            machineCounter++;
+            jobHead->operationHeadPointer->machineHeadPointer = jobHead->operationHeadPointer->machineHeadPointer->next;
+        }
+        totalTime = totalTime / machineCounter;
+
+        printf("Average Time for Operation %d: %.2f\n", jobHead->operationHeadPointer->operationNumber, totalTime);
+        jobHead->operationHeadPointer = jobHead->operationHeadPointer->next;
+    }
+}
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
 void PrintJobList(job *jobHead)
 {
     job *jobTmp = jobHead;
@@ -133,7 +233,11 @@ void PrintJobList(job *jobHead)
     }
     PrintOperationList(select_job(jobHead)->operationHeadPointer);
 }
-
+/**
+ * @brief
+ *
+ * @param operationHead
+ */
 void PrintOperationList(operation *operationHead)
 {
     operation *operationTmp = operationHead;
@@ -145,7 +249,11 @@ void PrintOperationList(operation *operationHead)
         operationTmp = operationTmp->next;
     }
 }
-
+/**
+ * @brief
+ *
+ * @param machineHead
+ */
 void PrintMachineList(machine *machineHead)
 {
     machine *machineTmp = machineHead;
@@ -156,7 +264,11 @@ void PrintMachineList(machine *machineHead)
         machineTmp = machineTmp->next;
     }
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
 void UserCreateOperation(job *jobHead)
 {
     job *jobTmp = jobHead;
@@ -212,7 +324,11 @@ void UserCreateOperation(job *jobHead)
         operationTmp = operationTmp->next;
     }
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
 void UserRemoveOperation(job *jobHead)
 {
     job *jobTmp = jobHead;
@@ -259,13 +375,16 @@ void UserRemoveOperation(job *jobHead)
     operationTmp->prev->next = NULL;
     free(operationTmp);
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ */
 void UserAlterOperation(job *jobHead)
 {
     job *jobTmp = jobHead;
     operation *operationTmp;
     operation *operationTmp2;
-    operation *operationTmp3;
     machine *machineTmp;
     machine *machineHeadTmp;
     machine *machineHead = NULL;
@@ -283,59 +402,59 @@ void UserAlterOperation(job *jobHead)
     operationTmp = select_operation(jobTmp->operationHeadPointer);
     int choice;
 
-    do
+    printf("\t--- Alter Operation ---\n"
+           "\t Enter 1 - Add Machine \n"
+           "\t Enter 2 - Remove Machine \n"
+           "\t Enter 3 - Swap Operation Order \n"
+           "\n\t Enter 0 - back\n");
+
+    choice = GetInt(0, 5);
+    switch (choice)
     {
-        printf("\t--- Alter Operation ---\n"
-               "\t Enter 1 - Add Machine \n"
-               "\t Enter 2 - Remove Machine \n"
-               "\t Enter 3 - Swap Operation Order \n"
-               "\n\t Enter 0 - Quit\n");
-
-        choice = GetInt(0, 5);
-        switch (choice)
+    case 1:
+        while (machineNumber != 0)
         {
-        case 1:
-            while (machineNumber != 0)
-            {
-                machineHead = operationTmp->machineHeadPointer;
-                printf("\nMachine Number: ");
-                scanf(" %d", &machineNumber);
-                machineTmp = create_new_machine(machineNumber);
-                machineHead = insert_machine_at_end(&machineHead, machineTmp);
+            machineHead = operationTmp->machineHeadPointer;
+            printf("\nMachine Number: ");
+            scanf(" %d", &machineNumber);
+            machineTmp = create_new_machine(machineNumber);
+            machineHead = insert_machine_at_end(&machineHead, machineTmp);
 
-                printf("\nMachine %d Time: ", machineTmp->machineNumber);
-                scanf(" %d", &machineNumber);
-                machineTmp->machineTime = machineNumber;
-                machineTmp = machineHead;
+            printf("\nMachine %d Time: ", machineTmp->machineNumber);
+            scanf(" %d", &machineNumber);
+            machineTmp->machineTime = machineNumber;
+            machineTmp = machineHead;
 
-                printf("Enter 0 to stop adding machines: ");
-                scanf(" %d", &machineNumber);
-            }
-            break;
-        case 2:
-            machineTmp = select_machine(jobTmp->operationHeadPointer->machineHeadPointer);
-            remove_machine(jobTmp->operationHeadPointer->machineHeadPointer, machineTmp->machineNumber);
-            break;
-        case 3:
-            printf("\n Swap operation %d with: ", operationTmp->operationNumber);
-            scanf("%d", &operationNumber);
-            operationTmp2 = find_operation(jobTmp->operationHeadPointer, operationNumber, jobTmp->jobNumber);
-            operationTmp3->next = operationTmp->next;
-            operationTmp3->prev = operationTmp->prev;
-            operationTmp->next = operationTmp2->next;
-            operationTmp->prev = operationTmp2->prev;
-            operationTmp2->next = operationTmp3->next;
-            operationTmp2->prev = operationTmp3->prev;
-            break;
-        case 0:
-            break;
-        default:
-            printf("\n\t//Invalid Option//\n\n");
-            break;
+            printf("Enter 0 to stop adding machines: ");
+            scanf(" %d", &machineNumber);
         }
-    } while (choice != 0);
+        break;
+    case 2:
+        machineTmp = select_machine(jobTmp->operationHeadPointer->machineHeadPointer);
+        remove_machine(&operationTmp->machineHeadPointer, machineTmp->machineNumber);
+        break;
+    case 3:
+        printf("\n Swap operation %d with: ", operationTmp->operationNumber);
+        scanf("%d", &operationNumber);
+        operationTmp2 = find_operation(jobTmp->operationHeadPointer, operationNumber, jobTmp->jobNumber);
+        machineTmp = operationTmp->machineHeadPointer;
+        operationTmp->machineHeadPointer = operationTmp2->machineHeadPointer;
+        operationTmp2->machineHeadPointer = machineTmp;
+        break;
+    case 0:
+        break;
+    default:
+        printf("\n\t//Invalid Option//\n\n");
+        break;
+    }
 }
-
+/**
+ * @brief Create a new job object
+ *
+ * @param jobNumber
+ * @param operationHead
+ * @return job*
+ */
 job *create_new_job(int jobNumber, operation **operationHead)
 {
     job *result = malloc(sizeof(job));
@@ -344,7 +463,14 @@ job *create_new_job(int jobNumber, operation **operationHead)
     result->next = NULL;
     return result;
 }
-
+/**
+ * @brief Create a new operation object
+ *
+ * @param operationNumber
+ * @param jobNumber
+ * @param machineHead
+ * @return operation*
+ */
 operation *create_new_operation(int operationNumber, int jobNumber, machine **machineHead)
 {
     operation *result = malloc(sizeof(operation));
@@ -356,6 +482,12 @@ operation *create_new_operation(int operationNumber, int jobNumber, machine **ma
     return result;
 }
 
+/**
+ * @brief Create a new machine object
+ *
+ * @param machineNumber
+ * @return machine*
+ */
 machine *create_new_machine(int machineNumber)
 {
     machine *result = malloc(sizeof(machine));
@@ -364,46 +496,85 @@ machine *create_new_machine(int machineNumber)
     result->prev = NULL;
     return result;
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ * @param jobToInsert
+ * @return job*
+ */
 job *insert_at_jobhead(job **jobHead, job *jobToInsert)
 {
     jobToInsert->next = *jobHead;
     *jobHead = jobToInsert;
     return jobToInsert;
 }
-
+/**
+ * @brief
+ *
+ * @param operationHead
+ * @param operationToInsert
+ * @return operation*
+ */
 operation *insert_at_operationhead(operation **operationHead, operation *operationToInsert)
 {
     operationToInsert->next = *operationHead;
     *operationHead = operationToInsert;
     return operationToInsert;
 }
-
+/**
+ * @brief
+ *
+ * @param machineHead
+ * @param machineToInsert
+ * @return machine*
+ */
 machine *insert_at_machineHead(machine **machineHead, machine *machineToInsert)
 {
     machineToInsert->next = *machineHead;
     *machineHead = machineToInsert;
     return machineToInsert;
 }
-
+/**
+ * @brief
+ *
+ * @param jobToInsertAfter
+ * @param jobToInsert
+ */
 void insert_after_job(job *jobToInsertAfter, job *jobToInsert)
 {
     jobToInsert->next = jobToInsertAfter->next;
     jobToInsertAfter->next = jobToInsert;
 }
-
+/**
+ * @brief
+ *
+ * @param operationToInsertAfter
+ * @param operationToInsert
+ */
 void insert_after_operation(operation *operationToInsertAfter, operation *operationToInsert)
 {
     operationToInsert->next = operationToInsertAfter->next;
     operationToInsertAfter->next = operationToInsert;
 }
-
+/**
+ * @brief
+ *
+ * @param machineToInsertAfter
+ * @param machineToInsert
+ */
 void insert_after_machine(machine *machineToInsertAfter, machine *machineToInsert)
 {
     machineToInsert->next = machineToInsertAfter->next;
     machineToInsertAfter->next = machineToInsert;
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ * @param jobToInsert
+ * @return job*
+ */
 job *insert_job_at_end(job **jobHead, job *jobToInsert)
 {
     jobToInsert->next = NULL;
@@ -423,7 +594,13 @@ job *insert_job_at_end(job **jobHead, job *jobToInsert)
     }
     return *jobHead;
 }
-
+/**
+ * @brief
+ *
+ * @param operationHead
+ * @param operationToInsert
+ * @return operation*
+ */
 operation *insert_operation_at_end(operation **operationHead, operation *operationToInsert)
 {
     operationToInsert->next = NULL;
@@ -445,7 +622,13 @@ operation *insert_operation_at_end(operation **operationHead, operation *operati
     }
     return *operationHead;
 }
-
+/**
+ * @brief
+ *
+ * @param machineHead
+ * @param machineToInsert
+ * @return machine*
+ */
 machine *insert_machine_at_end(machine **machineHead, machine *machineToInsert)
 {
     machineToInsert->next = NULL;
@@ -466,7 +649,12 @@ machine *insert_machine_at_end(machine **machineHead, machine *machineToInsert)
     }
     return *machineHead;
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ * @return job*
+ */
 job *select_job(job *jobHead)
 {
     job *jobHead2 = jobHead;
@@ -487,7 +675,14 @@ job *select_job(job *jobHead)
     }
     return NULL;
 }
-
+/**
+ * @brief
+ *
+ * @param operationHead
+ * @param operationNumber
+ * @param jobNumber
+ * @return operation*
+ */
 operation *find_operation(operation *operationHead, int operationNumber, int jobNumber)
 {
     operation *operationTmp = operationHead;
@@ -501,7 +696,12 @@ operation *find_operation(operation *operationHead, int operationNumber, int job
     }
     return NULL;
 }
-
+/**
+ * @brief
+ *
+ * @param operationHead
+ * @return operation*
+ */
 operation *select_operation(operation *operationHead)
 {
     operation *operationHead2 = operationHead;
@@ -543,13 +743,24 @@ machine *select_machine(machine *machineHead)
     }
     return NULL;
 }
-
+/**
+ * @brief
+ *
+ * @param operationToAlter
+ * @return operation*
+ */
 operation *alter_operation(operation *operationToAlter)
 {
     printf("Old Job Number: %d\tNew Job Number: ", operationToAlter->operationNumber);
     scanf(" %d", &operationToAlter->operationNumber);
 }
-
+/**
+ * @brief
+ *
+ * @param jobHead
+ * @param jobToRemove
+ * @return void*
+ */
 void *remove_job(job **jobHead, job *jobToRemove)
 {
     job *jobTmp;
@@ -579,7 +790,13 @@ void *remove_job(job **jobHead, job *jobToRemove)
         }
     }
 }
-
+/**
+ * @brief
+ *
+ * @param operationHead
+ * @param operationNumber
+ * @return void*
+ */
 void *remove_operation(operation **operationHead, int operationNumber)
 {
     operation *operationTmp;
@@ -609,7 +826,13 @@ void *remove_operation(operation **operationHead, int operationNumber)
         }
     }
 }
-
+/**
+ * @brief
+ *
+ * @param machineHead
+ * @param machineNumber
+ * @return void*
+ */
 void *remove_machine(machine **machineHead, int machineNumber)
 {
     machine *machineTmp;

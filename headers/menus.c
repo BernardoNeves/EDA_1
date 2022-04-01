@@ -1,3 +1,9 @@
+/**
+ * Author: Bernardo Neves
+ * Email: a23494@alunos.ipca.pt
+ * Date: 01/04/2022
+ * Description: Menus
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
@@ -18,9 +24,12 @@ void MainMenu()
                "\t Enter 2 - Add Operation\n"
                "\t Enter 3 - Remove Operation\n"
                "\t Enter 4 - Alter Operation\n"
+               "\t Enter 5 - Minimum Time\n"
+               "\t Enter 6 - Maximum Time\n"
+               "\t Enter 7 - Average Time\n"
                "\n\t Enter 0 - Quit\n");
 
-        choice = GetInt(0, 5);
+        choice = GetInt(0, 7);
         switch (choice)
         {
         case 1:
@@ -31,11 +40,18 @@ void MainMenu()
             break;
         case 3:
             UserRemoveOperation(jobHead);
-            // PrintJobList(jobHead);
-            // remove_job(&jobHead, select_job(jobHead));
             break;
         case 4:
             UserAlterOperation(jobHead);
+            break;
+        case 5:
+            timeMin(select_job(jobHead));
+            break;
+        case 6:
+            timeMax(select_job(jobHead));
+            break;
+        case 7:
+            timeAverage(select_job(jobHead));
             break;
         case 0:
             break;
@@ -44,7 +60,7 @@ void MainMenu()
             MainMenu();
             break;
         }
-        if (choice != 0)
+        if (choice != 0 && choice != 4)
         {
             printf("\n\tPress any key to go back");
             getch();
