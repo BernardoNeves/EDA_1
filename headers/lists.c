@@ -27,11 +27,11 @@ int GetInt(int min, int max)
     return choiceInt;
 }
 /**
- * @brief 
- * 
- * @param jobFile 
- * @param jobHead 
- * @return job* 
+ * @brief
+ *
+ * @param jobFile
+ * @param jobHead
+ * @return job*
  */
 job *read(FILE *jobFile, job *jobHead)
 {
@@ -147,23 +147,28 @@ void write(FILE *jobFile, job *jobHead)
 void timeMin(job *jobHead)
 {
     int machineNumber, minTime = 100, totalTime = 0;
-    while (jobHead->operationHeadPointer != NULL)
+    job *jobTmp = jobHead;
+    operation *operationTmp = jobHead->operationHeadPointer;
+    machine *machineTmp;
+    while (operationTmp != NULL)
     {
-        while (jobHead->operationHeadPointer->machineHeadPointer != NULL)
+        machineTmp = operationTmp->machineHeadPointer;
+        while (machineTmp != NULL)
         {
-            if (minTime > jobHead->operationHeadPointer->machineHeadPointer->machineTime)
+            if (minTime > machineTmp->machineTime)
             {
-                minTime = jobHead->operationHeadPointer->machineHeadPointer->machineTime;
-                machineNumber = jobHead->operationHeadPointer->machineHeadPointer->machineNumber;
+                minTime = machineTmp->machineTime;
+                machineNumber = machineTmp->machineNumber;
             }
-            jobHead->operationHeadPointer->machineHeadPointer = jobHead->operationHeadPointer->machineHeadPointer->next;
+            machineTmp = machineTmp->next;
         }
-        printf("Minimum Time for Operation %d: Machine: %d Time: %d\n", jobHead->operationHeadPointer->operationNumber, machineNumber, minTime);
+        printf("Minimum Time for Operation %d: Machine: %d Time: %d\n", operationTmp->operationNumber, machineNumber, minTime);
         totalTime += minTime;
         minTime = 100;
-        jobHead->operationHeadPointer = jobHead->operationHeadPointer->next;
+        operationTmp = operationTmp->next;
     }
     printf("\nMinimum Time for Job %d: %d\n", jobHead->jobNumber, totalTime);
+    // jobTmp = jobHead;
 }
 /**
  * @brief
@@ -173,21 +178,25 @@ void timeMin(job *jobHead)
 void timeMax(job *jobHead)
 {
     int machineNumber, maxTime = 0, totalTime = 0;
-    while (jobHead->operationHeadPointer != NULL)
+    job *jobTmp = jobHead;
+    operation *operationTmp = jobHead->operationHeadPointer;
+    machine *machineTmp;
+    while (operationTmp != NULL)
     {
-        while (jobHead->operationHeadPointer->machineHeadPointer != NULL)
+        machineTmp = operationTmp->machineHeadPointer;
+        while (machineTmp != NULL)
         {
-            if (maxTime < jobHead->operationHeadPointer->machineHeadPointer->machineTime)
+            if (maxTime < machineTmp->machineTime)
             {
-                maxTime = jobHead->operationHeadPointer->machineHeadPointer->machineTime;
-                machineNumber = jobHead->operationHeadPointer->machineHeadPointer->machineNumber;
+                maxTime = machineTmp->machineTime;
+                machineNumber = machineTmp->machineNumber;
             }
-            jobHead->operationHeadPointer->machineHeadPointer = jobHead->operationHeadPointer->machineHeadPointer->next;
+            machineTmp = machineTmp->next;
         }
-        printf("Maximum Time for Operation %d: Machine: %d Time: %d\n", jobHead->operationHeadPointer->operationNumber, machineNumber, maxTime);
+        printf("Maximum Time for Operation %d: Machine: %d Time: %d\n", operationTmp->operationNumber, machineNumber, maxTime);
         totalTime += maxTime;
         maxTime = 0;
-        jobHead->operationHeadPointer = jobHead->operationHeadPointer->next;
+        operationTmp = operationTmp->next;
     }
     printf("\nMaximum Time for Job %d: %d\n", jobHead->jobNumber, totalTime);
 }
@@ -199,22 +208,26 @@ void timeMax(job *jobHead)
 void timeAverage(job *jobHead)
 {
     int machineCounter;
+    job *jobTmp = jobHead;
+    operation *operationTmp = jobHead->operationHeadPointer;
+    machine *machineTmp;
     float totalTime;
-    while (jobHead->operationHeadPointer != NULL)
+    while (operationTmp != NULL)
     {
         machineCounter = 0;
         totalTime = 0;
-        while (jobHead->operationHeadPointer->machineHeadPointer != NULL)
+        machineTmp = operationTmp->machineHeadPointer;
+        while (machineTmp != NULL)
         {
 
-            totalTime += jobHead->operationHeadPointer->machineHeadPointer->machineTime;
+            totalTime += machineTmp->machineTime;
             machineCounter++;
-            jobHead->operationHeadPointer->machineHeadPointer = jobHead->operationHeadPointer->machineHeadPointer->next;
+            machineTmp = machineTmp->next;
         }
         totalTime = totalTime / machineCounter;
 
-        printf("Average Time for Operation %d: %.2f\n", jobHead->operationHeadPointer->operationNumber, totalTime);
-        jobHead->operationHeadPointer = jobHead->operationHeadPointer->next;
+        printf("Average Time for Operation %d: %.2f\n", operationTmp->operationNumber, totalTime);
+        operationTmp = operationTmp->next;
     }
 }
 /**

@@ -16,6 +16,7 @@ void MainMenu()
     job *jobHead = NULL;
     jobHead = read(jobFile, jobHead);
     int choice;
+    
 
     do
     {
