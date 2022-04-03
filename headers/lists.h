@@ -74,12 +74,4 @@ operation *select_operation();
 machine *select_machine();
 operation *find_operation();
 
-operation *alter_operation();
-
-void insert_after_job();
-void insert_after_operation();
-void insert_after_machine();
-
 void *remove_machine();
-void *remove_operation();
-void *remove_job();

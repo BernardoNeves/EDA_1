@@ -492,7 +492,6 @@ operation *create_new_operation(int operationNumber, int jobNumber, machine **ma
     result->prev = NULL;
     return result;
 }
-
 /**
  * @brief Create a new machine object
  *
@@ -506,78 +505,6 @@ machine *create_new_machine(int machineNumber)
     result->next = NULL;
     result->prev = NULL;
     return result;
-}
-/**
- * @brief
- *
- * @param jobHead
- * @param jobToInsert
- * @return job*
- */
-job *insert_at_jobhead(job **jobHead, job *jobToInsert)
-{
-    jobToInsert->next = *jobHead;
-    *jobHead = jobToInsert;
-    return jobToInsert;
-}
-/**
- * @brief
- *
- * @param operationHead
- * @param operationToInsert
- * @return operation*
- */
-operation *insert_at_operationhead(operation **operationHead, operation *operationToInsert)
-{
-    operationToInsert->next = *operationHead;
-    *operationHead = operationToInsert;
-    return operationToInsert;
-}
-/**
- * @brief
- *
- * @param machineHead
- * @param machineToInsert
- * @return machine*
- */
-machine *insert_at_machineHead(machine **machineHead, machine *machineToInsert)
-{
-    machineToInsert->next = *machineHead;
-    *machineHead = machineToInsert;
-    return machineToInsert;
-}
-/**
- * @brief
- *
- * @param jobToInsertAfter
- * @param jobToInsert
- */
-void insert_after_job(job *jobToInsertAfter, job *jobToInsert)
-{
-    jobToInsert->next = jobToInsertAfter->next;
-    jobToInsertAfter->next = jobToInsert;
-}
-/**
- * @brief
- *
- * @param operationToInsertAfter
- * @param operationToInsert
- */
-void insert_after_operation(operation *operationToInsertAfter, operation *operationToInsert)
-{
-    operationToInsert->next = operationToInsertAfter->next;
-    operationToInsertAfter->next = operationToInsert;
-}
-/**
- * @brief
- *
- * @param machineToInsertAfter
- * @param machineToInsert
- */
-void insert_after_machine(machine *machineToInsertAfter, machine *machineToInsert)
-{
-    machineToInsert->next = machineToInsertAfter->next;
-    machineToInsertAfter->next = machineToInsert;
 }
 /**
  * @brief
@@ -733,7 +660,12 @@ operation *select_operation(operation *operationHead)
     }
     return NULL;
 }
-
+/**
+ * @brief
+ *
+ * @param machineHead
+ * @return machine*
+ */
 machine *select_machine(machine *machineHead)
 {
     machine *machineHead2 = machineHead;
@@ -753,89 +685,6 @@ machine *select_machine(machine *machineHead)
         machineHead = machineHead->next;
     }
     return NULL;
-}
-/**
- * @brief
- *
- * @param operationToAlter
- * @return operation*
- */
-operation *alter_operation(operation *operationToAlter)
-{
-    printf("Old Job Number: %d\tNew Job Number: ", operationToAlter->operationNumber);
-    scanf(" %d", &operationToAlter->operationNumber);
-}
-/**
- * @brief
- *
- * @param jobHead
- * @param jobToRemove
- * @return void*
- */
-void *remove_job(job **jobHead, job *jobToRemove)
-{
-    job *jobTmp;
-
-    if ((*jobHead)->jobNumber == jobToRemove->jobNumber)
-    {
-        jobTmp = *jobHead;
-        *jobHead = (*jobHead)->next;
-        free(jobTmp);
-    }
-    else
-    {
-        job *current = *jobHead;
-        while (current->next != NULL)
-        {
-            if (current->next->jobNumber == jobToRemove->jobNumber)
-            {
-                jobTmp = current->next;
-                current->next = current->next->next;
-                free(jobTmp);
-                break;
-            }
-            else
-            {
-                current = current->next;
-            }
-        }
-    }
-}
-/**
- * @brief
- *
- * @param operationHead
- * @param operationNumber
- * @return void*
- */
-void *remove_operation(operation **operationHead, int operationNumber)
-{
-    operation *operationTmp;
-
-    if ((*operationHead)->operationNumber == operationNumber)
-    {
-        operationTmp = *operationHead;
-        *operationHead = (*operationHead)->next;
-        free(operationTmp);
-    }
-    else
-    {
-        operation *current = *operationHead;
-        while (current->next != NULL)
-        {
-            if (current->next->operationNumber == operationNumber)
-            {
-                operationTmp = current->next;
-                current->next = current->next->next;
-                free(operationTmp);
-                break;
-            }
-            else
-            {
-                current = current->next;
-            }
-        }
-    }
 }
 /**
  * @brief
