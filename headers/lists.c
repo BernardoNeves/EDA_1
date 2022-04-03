@@ -132,9 +132,7 @@ void write(FILE *jobFile, job *jobHead)
         }
         fprintf(jobFile, "-,");
         if (jobTmp->next != NULL)
-        {
             fprintf(jobFile, "\n");
-        }
         jobTmp = jobTmp->next;
     }
     fclose(jobFile);
