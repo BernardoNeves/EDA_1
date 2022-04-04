@@ -360,11 +360,7 @@ void UserRemoveOperation(job *jobHead)
 
     printf("\nOperation Number: ");
     scanf(" %d", &operationNumber);
-
-    // while (jobTmp->operationHeadPointer->prev != NULL)
-    // {
-    //     jobTmp->operationHeadPointer = jobTmp->operationHeadPointer->prev;
-    // }
+    
     while (operationTmp->next != NULL)
     {
         operationTmp = operationTmp->next;
