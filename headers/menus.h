@@ -1,1 +1,1 @@
-void MainMenu();
+void mainMenu();
